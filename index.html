@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wombat</title>
+  <meta name="description" content="Wombat AS is a Norwegian company.">
+
+  <meta property="og:title" content="Wombat">
+  <meta property="og:description" content="A Norwegian company.">
+  <meta property="og:image" content="wombat-logo.png">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/png" href="wombat-logo.png">
+  <link rel="apple-touch-icon" href="wombat-logo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="home">
+    <div class="logo-block">
+      <img id="wombat-mark" src="wombat-logo.png" alt="Wombat">
+      <div class="wordmark-text">wombat</div>
+    </div>
+    <nav class="primary">
+      <a href="about.html">About our company</a>
+      <a href="wombats.html">Photographs of wild wombats</a>
+      <a href="https://docs.google.com/spreadsheets/d/1r58V9bGHoJZDuZ3yRSJWuCCVVie4632kGpdcs40XNWY/edit?gid=370596621#gid=370596621" target="_blank" rel="noopener">For the partners</a>
+    </nav>
+  </main>
+  <footer>
+    Wombat AS &middot; Org.nr 925&nbsp;629&nbsp;634
+  </footer>
+
+  <script>
+  (function() {
+    const wombat = document.getElementById('wombat-mark');
+    if (!wombat) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let startTime = Date.now();
+    let isHovering = false;
+
+    wombat.addEventListener('mouseenter', () => isHovering = true);
+    wombat.addEventListener('mouseleave', () => isHovering = false);
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInQuad(t) { return t * t; }
+
+    function animate() {
+      if (!isHovering) {
+        const t = (Date.now() - startTime) / 1000;
+
+        // BREATHING — gentle continuous pulse (subtle)
+        const breatheScale = 1 + 0.0085 * Math.sin((t / 6) * Math.PI * 2);
+
+        // THE HOP — every 35 seconds, vertical only, with a small tilt
+        const hopCycle = t % 35;
+        let hopY = 0;
+        let hopTilt = 0;
+        let hopScale = 1;
+
+        if (hopCycle < 32) {
+          // resting
+        } else if (hopCycle < 32.4) {
+          const p = (hopCycle - 32) / 0.4;
+          hopY = 3 * easeInQuad(p);
+          hopTilt = -1.5 * easeInQuad(p);
+          hopScale = 1 - 0.02 * easeInQuad(p);
+        } else if (hopCycle < 32.9) {
+          const p = (hopCycle - 32.4) / 0.5;
+          hopY = 3 - (3 + 18) * easeOutCubic(p);
+          hopTilt = -1.5 + (1.5 + 2) * easeOutCubic(p);
+          hopScale = 0.98 + 0.04 * easeOutCubic(p);
+        } else if (hopCycle < 33.3) {
+          const p = (hopCycle - 32.9) / 0.4;
+          hopY = -18 + 18 * easeInQuad(p);
+          hopTilt = 0.5 - 0.5 * easeInQuad(p);
+          hopScale = 1.02 - 0.02 * easeInQuad(p);
+        } else {
+          const p = Math.min(1, (hopCycle - 33.3) / 0.5);
+          hopY = 2 * Math.sin(p * Math.PI) * (1 - p) * 0.4;
+        }
+
+        const totalScale = breatheScale * hopScale;
+        wombat.style.transform =
+          `translateY(${hopY}px) rotate(${hopTilt}deg) scale(${totalScale})`;
+      }
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  })();
+  </script>
+</body>
+</html>
