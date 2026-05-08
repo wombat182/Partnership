@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wombat</title>
+  <meta name="description" content="Wombat is a private investment partnership based in Norway.">
+
+  <meta property="og:title" content="Wombat">
+  <meta property="og:description" content="A private investment partnership.">
+  <meta property="og:image" content="wombat-logo.png">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/png" href="wombat-logo.png">
+  <link rel="apple-touch-icon" href="wombat-logo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="home">
+    <div class="logo-block">
+      <img id="wombat-mark" src="wombat-logo.png" alt="Wombat">
+      <div class="wordmark-text">wombat</div>
+    </div>
+    <nav class="primary">
+      <a href="about.html">About our company</a>
+      <a href="wombats.html">Pictures of wild wombats</a>
+      <a href="https://docs.google.com/spreadsheets/d/1r58V9bGHoJZDuZ3yRSJWuCCVVie4632kGpdcs40XNWY/edit?gid=0#gid=0" target="_blank" rel="noopener">For the partners</a>
+    </nav>
+  </main>
+  <footer>
+    Wombat AS &middot; Org.nr 925&nbsp;629&nbsp;634
+  </footer>
+
+  <script>
+  // Wombat animation, calmer version.
+  // No horizontal movement. Just breathing + the occasional cute hop.
+  (function() {
+    const wombat = document.getElementById('wombat-mark');
+    if (!wombat) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let startTime = Date.now();
+    let isHovering = false;
+
+    wombat.addEventListener('mouseenter', () => isHovering = true);
+    wombat.addEventListener('mouseleave', () => isHovering = false);
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInQuad(t) { return t * t; }
+
+    function animate() {
+      if (!isHovering) {
+        const t = (Date.now() - startTime) / 1000;
+
+        // BREATHING — gentle continuous pulse (subtle)
+        const breatheScale = 1 + 0.0085 * Math.sin((t / 6) * Math.PI * 2);
+
+        // THE HOP — every 35 seconds.
+        // Quick, cute, vertical only, with a small tilt.
+        // Timeline (35s):
+        //   0–32s    : at rest
+        //   32–32.4s : crouch + lean (0.4s wind-up)
+        //   32.4–32.9s: jump up (0.5s)
+        //   32.9–33.3s: come back down (0.4s)
+        //   33.3–35s : settle at rest
+        const hopCycle = t % 35;
+        let hopY = 0;
+        let hopTilt = 0;
+        let hopScale = 1;
+
+        if (hopCycle < 32) {
+          // resting
+        } else if (hopCycle < 32.4) {
+          // wind-up: slight crouch + tiny lean
+          const p = (hopCycle - 32) / 0.4;
+          hopY = 3 * easeInQuad(p);          // crouch down 3px
+          hopTilt = -1.5 * easeInQuad(p);    // lean back slightly
+          hopScale = 1 - 0.02 * easeInQuad(p); // squash
+        } else if (hopCycle < 32.9) {
+          // jump up
+          const p = (hopCycle - 32.4) / 0.5;
+          hopY = 3 - (3 + 18) * easeOutCubic(p);  // from +3 (crouch) to -18 (peak)
+          hopTilt = -1.5 + (1.5 + 2) * easeOutCubic(p); // from -1.5 to +0.5
+          hopScale = 0.98 + 0.04 * easeOutCubic(p); // stretch
+        } else if (hopCycle < 33.3) {
+          // come back down
+          const p = (hopCycle - 32.9) / 0.4;
+          hopY = -18 + 18 * easeInQuad(p);   // back to 0
+          hopTilt = 0.5 - 0.5 * easeInQuad(p); // back to 0
+          hopScale = 1.02 - 0.02 * easeInQuad(p); // settle
+        } else {
+          // little landing bounce settles
+          const p = Math.min(1, (hopCycle - 33.3) / 0.5);
+          hopY = 2 * Math.sin(p * Math.PI) * (1 - p) * 0.4;
+        }
+
+        const totalScale = breatheScale * hopScale;
+        wombat.style.transform =
+          `translateY(${hopY}px) rotate(${hopTilt}deg) scale(${totalScale})`;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  })();
+  </script>
+</body>
+</html>
